@@ -20,10 +20,10 @@
             margin-top: 8vh;
             width: 90vw;
             max-width: 400px;
-            height: 40vh;
-            border-left: 3px solid var(--neon-blue);
-            border-right: 3px solid var(--neon-blue);
-            border-bottom: 3px solid var(--neon-blue);
+            height: 42vh;
+            border-left: 2px solid var(--neon-blue);
+            border-right: 2px solid var(--neon-blue);
+            border-bottom: 2px solid var(--neon-blue);
             position: relative;
             background: #000;
             overflow: hidden;
@@ -49,7 +49,7 @@
         .ctrl-btn {
             height: 75px; background: #111;
             border: 2px solid var(--neon-blue); color: var(--neon-blue);
-            border-radius: 12px; font-size: 1.5rem;
+            border-radius: 12px; font-size: 1.8rem;
             display: flex; align-items: center; justify-content: center;
             user-select: none;
         }
@@ -66,7 +66,7 @@
 </head>
 <body>
 
-    <h1 style="font-family:'Syncopate'; font-size: 0.7rem; margin-top: 15px; letter-spacing: 5px; color: #444;">INSTANT_SURGE_v2</h1>
+    <h1 style="font-family:'Syncopate'; font-size: 0.7rem; margin-top: 15px; letter-spacing: 5px; color: #444;">DEEP_HORIZON_v3</h1>
 
     <div id="gameWrapper">
         <div class="score-hud">SCR: <span id="scoreVal">0</span></div>
@@ -89,20 +89,19 @@
 
         const game = {
             active: false, score: 0, lane: 0,
-            obstacles: [], speed: 0.05,
+            obstacles: [], speed: 0.03, // Slightly slower base speed for depth
             yPos: 0, yVel: 0, isJumping: false,
 
             init() {
                 canvas.width = canvas.offsetWidth;
                 canvas.height = canvas.offsetHeight;
                 this.active = true; this.score = 0; this.lane = 0;
-                this.obstacles = []; this.speed = 0.05;
+                this.obstacles = []; this.speed = 0.03;
                 this.yPos = 0; this.yVel = 0; this.isJumping = false;
                 document.getElementById('deathMsg').style.display = 'none';
                 requestAnimationFrame(() => this.loop());
             },
 
-            // REMOVED DELAY: Character now snaps instantly to lane
             move(dir) { 
                 this.lane = Math.max(-1, Math.min(1, this.lane + dir)); 
             },
@@ -131,13 +130,17 @@
                     if (this.yPos <= 0) { this.yPos = 0; this.isJumping = false; }
                 }
 
-                if (Math.random() < 0.045) this.obstacles.push({ lane: Math.floor(Math.random()*3)-1, z: 2 });
+                // Spawning at Z = 5 (Deep Horizon)
+                if (Math.random() < 0.06) {
+                    this.obstacles.push({ lane: Math.floor(Math.random()*3)-1, z: 5 });
+                }
 
                 for (let i = this.obstacles.length - 1; i >= 0; i--) {
                     let o = this.obstacles[i];
                     o.z -= this.speed;
-                    // Collision check
-                    if (o.z < 0.3 && o.z > 0.1 && o.lane === this.lane) {
+
+                    // Collision check (Player is at Z ~ 0.5)
+                    if (o.z < 0.6 && o.z > 0.3 && o.lane === this.lane) {
                         if (this.yPos < 45) this.gameOver(); 
                     }
                     if (o.z < 0) this.obstacles.splice(i, 1);
@@ -147,42 +150,56 @@
             draw() {
                 ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 const cx = canvas.width / 2;
-                const horizY = canvas.height * 0.3;
+                const horizY = canvas.height * 0.2; // Horizon pushed further up
 
-                // DRAW LANE HIGHLIGHT (Helps you see where you are)
-                ctx.fillStyle = 'rgba(0, 242, 255, 0.05)';
-                let hX = cx + (this.lane * (canvas.width * 0.33));
+                // Highlight Current Lane
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.08)';
+                let hX = cx + (this.lane * (canvas.width * 0.35));
                 ctx.beginPath();
                 ctx.moveTo(cx, horizY);
-                ctx.lineTo(hX - canvas.width*0.2, canvas.height);
-                ctx.lineTo(hX + canvas.width*0.2, canvas.height);
+                ctx.lineTo(hX - canvas.width*0.25, canvas.height);
+                ctx.lineTo(hX + canvas.width*0.25, canvas.height);
                 ctx.fill();
 
-                // Floor Grid
+                // Floor Grid Lines
                 ctx.strokeStyle = '#111';
-                for(let i=0; i<10; i++) {
-                    let z = (i/10 + (this.score*0.01)%0.1);
+                for(let i=1; i<15; i++) {
+                    let z = (i/15 + (this.score*0.01)%0.06);
                     let y = horizY + (canvas.height-horizY)*z;
                     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
                 }
 
-                // Obstacles
-                this.obstacles.forEach(o => {
-                    let s = 1/o.z;
-                    let x = cx + (o.lane) * (canvas.width * 0.4) * s;
-                    let y = horizY + (canvas.height - horizY) * s;
-                    let sz = (canvas.width * 0.2) * s;
-                    ctx.fillStyle = '#ff00ea';
-                    ctx.shadowBlur = 10*s; ctx.shadowColor = '#ff00ea';
-                    ctx.fillRect(x-sz/2, y-sz, sz, sz);
+                // Lane Guides
+                ctx.strokeStyle = '#222';
+                [-1.5, -0.5, 0.5, 1.5].forEach(l => {
+                    ctx.beginPath();
+                    ctx.moveTo(cx, horizY);
+                    ctx.lineTo(cx + (l * canvas.width * 1.5), canvas.height);
+                    ctx.stroke();
                 });
 
-                // Player
+                // Render Obstacles with Scale Factor
+                this.obstacles.sort((a,b) => b.z - a.z); // Draw far ones first
+                this.obstacles.forEach(o => {
+                    let s = 1.5 / o.z; // Perspective multiplier
+                    let x = cx + (o.lane) * (canvas.width * 0.5) * s;
+                    let y = horizY + (canvas.height - horizY) * s;
+                    let sz = (canvas.width * 0.22) * s;
+                    
+                    // Fade out obstacles on the horizon
+                    let opacity = Math.min(1, 1 / o.z);
+                    ctx.fillStyle = `rgba(255, 0, 234, ${opacity})`;
+                    ctx.shadowBlur = 10*s; ctx.shadowColor = '#ff00ea';
+                    ctx.fillRect(x-sz/2, y-sz, sz, sz);
+                    ctx.shadowBlur = 0;
+                });
+
+                // Player Character
                 ctx.fillStyle = '#00f2ff';
                 ctx.shadowBlur = 15; ctx.shadowColor = '#00f2ff';
-                let pSz = canvas.width * 0.14;
-                let charX = cx + (this.lane * (canvas.width * 0.35));
-                let charY = (canvas.height * 0.8) - this.yPos;
+                let pSz = canvas.width * 0.15;
+                let charX = cx + (this.lane * (canvas.width * 0.4) * 0.8); // Adjusted X for player perspective
+                let charY = (canvas.height * 0.82) - this.yPos;
                 ctx.fillRect(charX - pSz/2, charY, pSz, pSz);
             },
 
