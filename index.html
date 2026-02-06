@@ -11,232 +11,159 @@
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; }
         body { 
             font-family: 'JetBrains Mono', monospace; 
-            background: var(--bg); 
-            color: #fff; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden;
+            background: var(--bg); color: #fff; 
+            height: 100vh; display: flex; flex-direction: column; align-items: center;
         }
 
-        /* --- THE ARCHITECT FRAME (SMALLER PLAY AREA) --- */
-        #viewport {
+        /* --- THE MICRO-FRAME (Raised & Smaller) --- */
+        #gameWrapper {
+            margin-top: 15vh; /* Pushes the game up away from bottom bars */
+            width: 90vw;
+            max-width: 400px;
+            height: 45vh; /* Much smaller height for safety */
+            border: 3px solid var(--neon-blue);
+            border-radius: 20px;
             position: relative;
-            width: 95vw;
-            max-width: 500px;
-            height: 60vh; /* Shorter to avoid browser buttons */
-            margin-top: 20px;
             background: #000;
-            border: 2px solid #1a1a2e;
-            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,1);
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.2);
         }
 
         canvas { width: 100%; height: 100%; display: block; }
 
-        .hud { 
-            position: absolute; top: 10px; width: 100%; 
-            display: flex; justify-content: space-around; 
-            font-size: 0.8rem; font-weight: 800; pointer-events: none; 
+        /* --- SCORE OVERLAY --- */
+        .score-hud {
+            position: absolute; top: 10px; width: 100%;
+            display: flex; justify-content: center;
+            font-size: 1.2rem; font-weight: 800; color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
         }
 
-        /* --- ARROW CONTROLS --- */
-        .controls-row {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            width: 90%;
-            max-width: 500px;
-            z-index: 50;
+        /* --- ARROW BUTTONS --- */
+        .btn-container {
+            display: flex; gap: 30px; margin-top: 20px;
+            width: 90%; max-width: 400px;
         }
-
-        .btn-ctrl {
-            flex: 1;
-            height: 70px;
-            background: rgba(255,255,255,0.05);
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
-            border-radius: 12px;
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        .arrow-btn {
+            flex: 1; height: 80px; background: #111;
+            border: 2px solid var(--neon-blue); color: var(--neon-blue);
+            border-radius: 15px; font-size: 2.5rem;
+            display: flex; align-items: center; justify-content: center;
         }
+        .arrow-btn:active { background: var(--neon-blue); color: #000; }
 
-        .btn-ctrl:active {
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 20px var(--neon-blue);
-        }
-
-        .death-screen { 
-            position: absolute; inset: 0; 
-            background: rgba(0,0,0,0.95); 
-            display: none; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 100; 
-        }
-
-        .btn-restart {
-            padding: 12px 30px;
-            background: transparent;
-            border: 2px solid var(--neon-pink);
-            color: var(--neon-pink);
-            font-family: 'Syncopate';
-            cursor: pointer;
-            margin-top: 20px;
+        .death-msg {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
         }
     </style>
 </head>
 <body>
 
-    <h2 style="font-family:'Syncopate'; font-size: 0.9rem; margin-top: 15px; color: var(--neon-blue);">NEON_SURFER_v1.2</h2>
+    <h1 style="font-family:'Syncopate'; font-size: 0.8rem; margin-top: 20px; letter-spacing: 3px;">SYSTEM SURFER</h1>
 
-    <div id="viewport">
-        <div class="hud">
-            <span style="color:var(--neon-blue)">SCORE: <span id="scoreVal">0</span></span>
-            <span style="color:var(--neon-pink)">FPS: <span id="fpsVal">60</span></span>
-        </div>
-        
+    <div id="gameWrapper">
+        <div class="score-hud">SCR: <span id="scoreVal">0</span></div>
         <canvas id="gameCanvas"></canvas>
-
-        <div id="deathScreen" class="death-screen">
-            <h1 style="color:var(--neon-pink); font-family:'Syncopate'; font-size: 1.5rem;">CRITICAL ERROR</h1>
-            <button class="btn-restart" onclick="game.init()">RELOAD</button>
+        <div id="deathMsg" class="death-msg">
+            <h2 style="color:var(--neon-pink); font-family:'Syncopate';">CRASHED</h2>
+            <button onclick="game.init()" style="margin-top:20px; padding:10px 20px; background:none; border:1px solid #fff; color:#fff;">RETRY</button>
         </div>
     </div>
 
-    <div class="controls-row">
-        <div class="btn-ctrl" onpointerdown="game.move(-1)">◀</div>
-        <div class="btn-ctrl" onpointerdown="game.move(1)">▶</div>
+    <div class="btn-container">
+        <div class="arrow-btn" id="leftBtn">◀</div>
+        <div class="arrow-btn" id="rightBtn">▶</div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
+        let startX = 0;
+
         const game = {
-            active: false,
-            score: 0,
-            lane: 0, 
-            targetLane: 0,
-            obstacles: [],
-            speed: 0.04,
-            horizonY: 0,
-            lastFrame: 0,
+            active: false, score: 0, lane: 0, targetLane: 0,
+            obstacles: [], speed: 0.05, lastFrame: 0,
 
             init() {
                 canvas.width = canvas.offsetWidth;
                 canvas.height = canvas.offsetHeight;
-                this.horizonY = canvas.height * 0.4;
-                this.active = true;
-                this.score = 0;
-                this.lane = 0;
-                this.targetLane = 0;
-                this.obstacles = [];
-                this.speed = 0.04;
-                document.getElementById('deathScreen').style.display = 'none';
+                this.active = true; this.score = 0; this.lane = 0; this.targetLane = 0;
+                this.obstacles = []; this.speed = 0.05;
+                document.getElementById('deathMsg').style.display = 'none';
                 requestAnimationFrame((t) => this.loop(t));
             },
 
-            move(dir) {
-                this.targetLane = Math.max(-1, Math.min(1, this.targetLane + dir));
-            },
+            move(dir) { this.targetLane = Math.max(-1, Math.min(1, this.targetLane + dir)); },
 
             loop(t) {
                 if (!this.active) return;
-                const dt = t - this.lastFrame;
-                this.lastFrame = t;
-                if(t % 20 < 1) document.getElementById('fpsVal').innerText = Math.round(1000/dt);
-
-                this.update();
-                this.draw();
+                this.update(); this.draw();
                 requestAnimationFrame((t) => this.loop(t));
             },
 
             update() {
-                this.score += 1;
+                this.score++;
                 document.getElementById('scoreVal').innerText = Math.floor(this.score/10);
-                this.speed += 0.00001;
-
-                // Smooth lane change
                 this.lane += (this.targetLane - this.lane) * 0.2;
+                this.speed += 0.00002;
 
-                if (Math.random() < 0.04) {
-                    this.obstacles.push({ lane: Math.floor(Math.random() * 3) - 1, z: 2 });
-                }
+                if (Math.random() < 0.05) this.obstacles.push({ lane: Math.floor(Math.random()*3)-1, z: 2 });
 
                 for (let i = this.obstacles.length - 1; i >= 0; i--) {
                     let o = this.obstacles[i];
                     o.z -= this.speed;
-
-                    // Proximity Collision
-                    if (o.z < 0.25 && o.z > 0.1 && Math.abs(o.lane - this.lane) < 0.5) {
-                        this.gameOver();
-                    }
+                    // Collision Check
+                    if (o.z < 0.3 && o.z > 0.1 && Math.abs(o.lane - this.lane) < 0.5) this.gameOver();
                     if (o.z < 0) this.obstacles.splice(i, 1);
                 }
             },
 
             draw() {
-                ctx.fillStyle = '#050508';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+                ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 const cx = canvas.width / 2;
+                const horizY = canvas.height * 0.3;
 
-                // 3D Perspective Grid
+                // Perspective Floor
                 ctx.strokeStyle = '#111';
-                for (let i = 0; i < 12; i++) {
-                    let z = (i / 12 + (this.score * 0.005) % (1/12));
-                    let y = this.horizonY + (canvas.height - this.horizonY) * z;
-                    let w = canvas.width * z * 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(cx - w, y); ctx.lineTo(cx + w, y);
-                    ctx.stroke();
+                for(let i=0; i<10; i++) {
+                    let z = (i/10 + (this.score*0.01)%0.1);
+                    let y = horizY + (canvas.height-horizY)*z;
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
                 }
 
-                // Lane Guides
-                ctx.strokeStyle = '#1a1a2e';
-                [-1.5, -0.5, 0.5, 1.5].forEach(l => {
-                    ctx.beginPath();
-                    ctx.moveTo(cx, this.horizonY);
-                    ctx.lineTo(cx + (l * canvas.width), canvas.height);
-                    ctx.stroke();
-                });
-
-                // Render 3D Obstacles
+                // Obstacles
                 this.obstacles.forEach(o => {
-                    let scale = 1 / o.z;
-                    let x = cx + (o.lane - this.lane) * (canvas.width * 0.35) * scale;
-                    let y = this.horizonY + (canvas.height - this.horizonY) * scale;
-                    let size = (canvas.width * 0.18) * scale;
-
-                    ctx.fillStyle = `rgba(255, 0, 234, ${Math.min(1, scale)})`;
-                    ctx.shadowBlur = 10 * scale; ctx.shadowColor = '#ff00ea';
-                    ctx.fillRect(x - size/2, y - size, size, size);
+                    let s = 1/o.z;
+                    let x = cx + (o.lane - this.lane) * (canvas.width * 0.4) * s;
+                    let y = horizY + (canvas.height - horizY) * s;
+                    let sz = (canvas.width * 0.2) * s;
+                    ctx.fillStyle = var(--neon-pink);
+                    ctx.shadowBlur = 10*s; ctx.shadowColor = '#ff00ea';
+                    ctx.fillRect(x-sz/2, y-sz, sz, sz);
                 });
 
-                // Render Player (Elevated Architect Box)
-                ctx.shadowBlur = 15; ctx.shadowColor = '#00f2ff';
+                // Character (The Architect Box)
                 ctx.fillStyle = '#00f2ff';
-                let pSize = canvas.width * 0.12;
-                // Positioned specifically above the bottom of the viewport
-                ctx.fillRect(cx - pSize/2, canvas.height * 0.85, pSize, pSize);
-                ctx.shadowBlur = 0;
+                ctx.shadowBlur = 15; ctx.shadowColor = '#00f2ff';
+                // Drawn high (80% down instead of 100%) to stay above browser bars
+                let pSz = canvas.width * 0.15;
+                ctx.fillRect(cx - pSz/2, canvas.height * 0.75, pSz, pSz);
             },
 
-            gameOver() {
-                this.active = false;
-                document.getElementById('deathScreen').style.display = 'flex';
-            }
+            gameOver() { this.active = false; document.getElementById('deathMsg').style.display = 'flex'; }
         };
 
-        window.addEventListener('keydown', (e) => {
-            if(e.key === 'ArrowLeft') game.move(-1);
-            if(e.key === 'ArrowRight') game.move(1);
+        // Swipe Detection
+        canvas.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        canvas.addEventListener('touchend', e => {
+            let diff = e.changedTouches[0].clientX - startX;
+            if (Math.abs(diff) > 30) game.move(diff > 0 ? 1 : -1);
         });
+
+        // Button Controls
+        document.getElementById('leftBtn').addEventListener('pointerdown', () => game.move(-1));
+        document.getElementById('rightBtn').addEventListener('pointerdown', () => game.move(1));
 
         game.init();
     </script>
