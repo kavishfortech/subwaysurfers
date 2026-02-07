@@ -3,432 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KAVISHFORTECH | SUBWAY ELITE</title>
+    <title>KAVISHFORTECH | 200 LEVELS</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=JetBrains+Mono:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=JetBrains+Mono:wght@800&display=swap');
         
         :root {
-            --sky: #3498db;
-            --track: #34495e;
             --neon-blue: #00f2ff;
             --neon-pink: #ff00ea;
-            --gold: #f1c40f;
+            --track-gray: #1a1a1d;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; user-select: none; }
 
         body {
-            background: #111;
+            background: #000;
             font-family: 'JetBrains Mono', monospace;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             overflow: hidden;
+            color: white;
         }
 
-        /* --- MASTER CONTROLS --- */
-        .system-panel {
+        /* --- LEVEL PROGRESS BAR --- */
+        .progress-container {
             width: 100%;
-            max-width: 500px;
-            padding: 15px;
-            display: flex;
-            gap: 10px;
+            height: 6px;
+            background: #222;
+            position: relative;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            transition: width 0.3s;
+        }
+
+        .top-nav {
+            width: 100%;
             background: #000;
-            border-bottom: 2px solid #222;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #333;
         }
 
-        .sys-btn {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #333;
-            background: transparent;
-            color: #fff;
-            font-family: 'Syncopate';
-            font-size: 0.65rem;
-            cursor: pointer;
-            transition: 0.2s;
-            border-radius: 4px;
-        }
-
-        .sys-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); }
-        .btn-abort { border-color: #551a1a; color: #a52a2a; }
-        .btn-abort:hover { border-color: #ff0000; color: #ff0000; }
-
-        /* --- GAME VIEWPORT --- */
-        #viewport {
+        #game-container {
             position: relative;
             width: 100vw;
-            height: 60vh;
-            max-width: 500px;
-            background: var(--sky);
+            height: 55vh;
+            background: linear-gradient(to bottom, #020024, #090979, #00d4ff);
             overflow: hidden;
-            border: 4px solid #000;
         }
 
-        canvas { width: 100%; height: 100%; display: block; }
+        canvas { width: 100%; height: 100%; }
 
-        /* --- HUD ELEMENTS --- */
         .hud {
             position: absolute;
-            top: 20px;
-            left: 0;
-            width: 100%;
-            padding: 0 20px;
+            top: 15px;
+            left: 20px;
+            right: 20px;
             display: flex;
             justify-content: space-between;
             pointer-events: none;
             z-index: 10;
         }
 
-        .stat-box {
-            background: rgba(0,0,0,0.6);
-            padding: 8px 15px;
-            border-radius: 5px;
-            border-left: 3px solid var(--neon-blue);
+        .hud-item {
+            background: rgba(0,0,0,0.8);
+            padding: 8px 12px;
+            border-radius: 4px;
+            border-bottom: 2px solid var(--neon-blue);
         }
 
-        .stat-label { font-size: 0.5rem; color: #aaa; text-transform: uppercase; }
-        .stat-value { font-family: 'Syncopate'; font-size: 1rem; color: #fff; }
+        .label { font-size: 0.5rem; color: #aaa; display: block; }
+        .val { font-size: 1rem; color: #fff; }
 
-        /* --- INPUT INTERFACE --- */
-        .controller {
+        /* --- MOBILE CONTROLS --- */
+        .input-grid {
             width: 100%;
-            max-width: 500px;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto auto;
-            gap: 10px;
-            padding: 20px;
-            background: #000;
+            grid-template-columns: 1fr 1fr;
             flex-grow: 1;
         }
 
-        .ctrl-node {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #fff;
-            height: 60px;
+        .touch-zone {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            font-family: 'Syncopate';
-            font-size: 0.7rem;
-            cursor: pointer;
+            border: 1px solid #111;
+            background: #050505;
         }
 
-        .ctrl-node:active { background: #333; transform: scale(0.98); }
-        .jump-node { grid-column: span 2; border-top: 3px solid var(--neon-pink); }
-        .roll-node { border-top: 3px solid var(--neon-blue); }
+        .zone-label { font-family: 'Syncopate'; font-size: 1.2rem; color: #222; }
+        .touch-zone:active { background: #111; }
 
-        /* --- SCREENS --- */
-        .screen {
+        .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 100;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .title-glitch {
-            font-family: 'Syncopate';
-            font-size: 2rem;
-            color: var(--neon-blue);
-            text-shadow: 2px 2px var(--neon-pink);
-            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="system-panel">
-        <button class="sys-btn" onclick="engine.boot()">INIT_SYSTEM</button>
-        <button class="sys-btn btn-abort" onclick="engine.shutdown()">ABORT_ALL</button>
+    <div class="progress-container"><div id="progress-bar"></div></div>
+
+    <div class="top-nav">
+        <button class="btn-sys" style="background:none; border:1px solid #444; color:white; padding:5px 15px; font-family:'Syncopate'; font-size:0.6rem;" onclick="core.start()">START_LEVEL_1</button>
+        <button class="btn-sys" style="background:none; border:1px solid #444; color:white; padding:5px 15px; font-family:'Syncopate'; font-size:0.6rem;" onclick="core.abort()">ABORT</button>
     </div>
 
-    <div id="viewport">
-        <div id="startScreen" class="screen">
-            <h1 class="title-glitch">SUBWAY<br>ARCHITECT</h1>
-            <p style="color:#555; font-size:0.7rem;">VERSION 8.4.2 // KAVISHFORTECH</p>
-            <p style="color:var(--neon-blue); margin-top:20px; font-size:0.8rem;">READY FOR DEPLOYMENT</p>
-        </div>
-
-        <div id="deathScreen" class="screen" style="display:none;">
-            <h1 class="title-glitch" style="color:var(--neon-pink)">CRITICAL_FAIL</h1>
-            <p id="finalScore" style="margin:10px 0;"></p>
-            <button class="sys-btn" style="max-width:200px;" onclick="engine.boot()">RE-INIT</button>
-        </div>
-
+    <div id="game-container">
         <div class="hud">
-            <div class="stat-box">
-                <div class="stat-label">Currency</div>
-                <div class="stat-value" id="coinDisplay">0</div>
-            </div>
-            <div class="stat-box" style="border-left-color: var(--neon-pink);">
-                <div class="stat-label">Distance</div>
-                <div class="stat-value" id="scoreDisplay">0</div>
-            </div>
+            <div class="hud-item"><span class="label">LVL</span><span class="val" id="lvl-val">1/200</span></div>
+            <div class="hud-item"><span class="label">GOAL</span><span class="val" id="dist-val">0m</span></div>
         </div>
 
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="stage"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <h1 style="font-family:'Syncopate'; color:var(--neon-blue);">200 LEVELS</h1>
+            <p style="margin-top:10px; color:#444;">KAVISHFORTECH // SYSTEM ARCHITECT</p>
+        </div>
+
+        <div id="death-screen" class="overlay" style="display:none;">
+            <h1 style="font-family:'Syncopate'; color:var(--neon-pink);">LEVEL FAILED</h1>
+            <p id="death-info" style="font-size:0.7rem; color:#888; margin:10px;"></p>
+            <button onclick="core.start()" style="padding:10px 30px; background:var(--neon-blue); border:none; color:black; font-family:'Syncopate'; cursor:pointer;">RE-INIT</button>
+        </div>
     </div>
 
-    <div class="controller">
-        <div class="ctrl-node" onpointerdown="input.setLane(-1)">LEFT</div>
-        <div class="ctrl-node" onpointerdown="input.setLane(0)">CENTER</div>
-        <div class="ctrl-node" onpointerdown="input.setLane(1)">RIGHT</div>
-        <div class="ctrl-node jump-node" onpointerdown="input.triggerJump()">JUMP_UP</div>
-        <div class="ctrl-node roll-node" onpointerdown="input.triggerRoll()">ROLL_DN</div>
+    <div class="input-grid">
+        <div class="touch-zone" id="jump-zone"><span class="zone-label">UP_JUMP</span></div>
+        <div class="touch-zone" id="roll-zone"><span class="zone-label">DN_ROLL</span></div>
     </div>
 
     <script>
-        /**
-         * SUBWAY ARCHITECT ENGINE
-         * Total LOC Goal: Extended modularity and refined physics
-         */
-
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('stage');
         const ctx = canvas.getContext('2d');
 
-        // --- GLOBAL CONFIG ---
-        const CONFIG = {
-            GRAVITY: 0.7,
-            JUMP_FORCE: 14,
-            SPEED_BASE: 0.05,
-            SPEED_INC: 0.00002,
-            LANE_WIDTH: 80,
-            HORIZON: 0.25
-        };
-
-        // --- INPUT MANAGER ---
-        const input = {
-            setLane: (l) => { if(engine.running) player.targetLane = l; },
-            triggerJump: () => { if(engine.running && !player.isJumping) player.jump(); },
-            triggerRoll: () => { if(engine.running && !player.isJumping) player.roll(); }
-        };
-
-        // --- PLAYER OBJECT ---
-        const player = {
-            lane: 0,
-            targetLane: 0,
-            y: 0,
-            vY: 0,
-            isJumping: false,
-            isRolling: false,
-            rollCounter: 0,
-            width: 30,
-            height: 50,
-
-            update() {
-                // Smooth Lane Transition
-                this.lane += (this.targetLane - this.lane) * 0.2;
-
-                // Physics
-                if (this.isJumping) {
-                    this.y += this.vY;
-                    this.vY -= CONFIG.GRAVITY;
-                    if (this.y <= 0) {
-                        this.y = 0;
-                        this.isJumping = false;
-                    }
-                }
-
-                if (this.isRolling) {
-                    this.rollCounter--;
-                    if (this.rollCounter <= 0) this.isRolling = false;
-                }
-            },
-
-            jump() {
-                this.vY = CONFIG.JUMP_FORCE;
-                this.isJumping = true;
-            },
-
-            roll() {
-                this.isRolling = true;
-                this.rollCounter = 45; // Frames
-            }
-        };
-
-        // --- ENVIRONMENT & OBSTACLES ---
-        class Entity {
-            constructor(type, lane) {
-                this.type = type;
-                this.lane = lane;
-                this.z = 12; // Start distance
-                this.id = Math.random();
-            }
-        }
-
-        const world = {
-            entities: [],
-            buildings: [],
-            spawnTimer: 0,
-
-            init() {
-                this.entities = [];
-                this.buildings = [];
-                for(let i=0; i<10; i++) this.spawnBuilding(i * 1.2);
-            },
-
-            spawnBuilding(zPos) {
-                this.buildings.push({ z: zPos, side: Math.random() > 0.5 ? 1 : -1, h: 100 + Math.random()*200 });
-            },
-
-            update(speed) {
-                this.spawnTimer++;
-                if (this.spawnTimer > 35) {
-                    const type = Math.random() > 0.2 ? 'TRAIN' : 'COIN';
-                    this.entities.push(new Entity(type, Math.floor(Math.random()*3)-1));
-                    this.spawnTimer = 0;
-                }
-
-                // Update Obstacles
-                for (let i = this.entities.length - 1; i >= 0; i--) {
-                    let e = this.entities[i];
-                    e.z -= speed;
-
-                    // Improved Collision Detection
-                    if (e.z < 0.6 && e.z > 0.2 && Math.round(e.lane) === Math.round(player.targetLane)) {
-                        if (e.type === 'COIN') {
-                            engine.coins++;
-                            this.entities.splice(i, 1);
-                        } else {
-                            // If player is not jumping high enough
-                            if (player.y < 35 && !player.isRolling) {
-                                engine.end();
-                            }
-                        }
-                    }
-                    if (e.z < 0) this.entities.splice(i, 1);
-                }
-
-                // Update Buildings for 3D depth effect
-                this.buildings.forEach(b => {
-                    b.z -= speed;
-                    if(b.z < 0) { b.z = 12; b.h = 100 + Math.random()*200; }
-                });
-            }
-        };
-
-        // --- CORE ENGINE ---
-        const engine = {
+        const core = {
             running: false,
-            score: 0,
-            coins: 0,
-            speed: CONFIG.SPEED_BASE,
-
-            boot() {
-                canvas.width = canvas.offsetWidth;
+            level: 1,
+            distanceInLevel: 0,
+            levelLength: 2000, // Distance required to pass level
+            
+            start() {
+                canvas.width = window.innerWidth;
                 canvas.height = canvas.offsetHeight;
                 this.running = true;
-                this.score = 0;
-                this.coins = 0;
-                this.speed = CONFIG.SPEED_BASE;
-                player.targetLane = 0;
-                player.y = 0;
+                this.distanceInLevel = 0;
+                player.init();
                 world.init();
-                document.getElementById('startScreen').style.display = 'none';
-                document.getElementById('deathScreen').style.display = 'none';
+                document.getElementById('start-screen').style.display = 'none';
+                document.getElementById('death-screen').style.display = 'none';
                 this.loop();
             },
 
-            shutdown() {
-                this.running = false;
-                document.getElementById('startScreen').style.display = 'flex';
-            },
+            abort() { this.running = false; document.getElementById('start-screen').style.display = 'flex'; },
 
-            end() {
-                this.running = false;
-                document.getElementById('deathScreen').style.display = 'flex';
-                document.getElementById('finalScore').innerText = `TOTAL DISTANCE: ${Math.floor(this.score)}`;
+            nextLevel() {
+                this.level++;
+                this.distanceInLevel = 0;
+                this.levelLength += 500; // Each level gets longer
+                world.speed += 0.5;
+                if(this.level > 200) alert("CONGRATULATIONS: ARCHITECT MASTER");
             },
 
             update() {
-                this.score += this.speed * 10;
-                this.speed += CONFIG.SPEED_INC;
-                player.update();
-                world.update(this.speed);
+                this.distanceInLevel += world.speed;
+                const progress = (this.distanceInLevel / this.levelLength) * 100;
+                document.getElementById('progress-bar').style.width = progress + "%";
+                document.getElementById('lvl-val').innerText = this.level + "/200";
+                document.getElementById('dist-val').innerText = Math.floor(this.levelLength - this.distanceInLevel) + "m";
 
-                document.getElementById('scoreDisplay').innerText = Math.floor(this.score);
-                document.getElementById('coinDisplay').innerText = this.coins;
+                if(this.distanceInLevel >= this.levelLength) this.nextLevel();
+
+                player.update();
+                world.update();
             },
 
             draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const cx = canvas.width / 2;
-                const hz = canvas.height * CONFIG.HORIZON;
-
-                // 1. Draw Environment (Buildings)
-                ctx.fillStyle = "#2c3e50";
-                world.buildings.forEach(b => {
-                    let s = 1/b.z;
-                    let w = 200 * s;
-                    let x = cx + (b.side * 250 * s) - (b.side === 1 ? 0 : w);
-                    let y = hz + (canvas.height - hz) * s;
-                    ctx.fillRect(x, y - (b.h * s), w, b.h * s);
-                });
-
-                // 2. Draw 3D Tracks
-                ctx.strokeStyle = "rgba(255,255,255,0.2)";
-                ctx.lineWidth = 2;
-                [-1.5, -0.5, 0.5, 1.5].forEach(l => {
-                    ctx.beginPath();
-                    ctx.moveTo(cx + l*20, hz);
-                    ctx.lineTo(cx + l*canvas.width, canvas.height);
-                    ctx.stroke();
-                });
-
-                // 3. Draw Entities
-                world.entities.sort((a,b) => b.z - a.z).forEach(e => {
-                    let s = 1.5/e.z;
-                    let x = cx + e.lane * (canvas.width * 0.4) * s;
-                    let y = hz + (canvas.height - hz) * s;
-                    let sz = 40 * s;
-
-                    if(e.type === 'TRAIN') {
-                        ctx.fillStyle = "#e74c3c";
-                        ctx.fillRect(x - sz/2, y - sz*1.8, sz, sz*1.8);
-                        ctx.strokeStyle = "#fff"; ctx.strokeRect(x - sz/2, y - sz*1.8, sz, sz*1.8);
-                    } else {
-                        ctx.fillStyle = varColor('--gold');
-                        ctx.beginPath(); ctx.arc(x, y - sz/2, sz/3, 0, Math.PI*2); ctx.fill();
-                    }
-                });
-
-                // 4. Draw Player
-                let pX = cx + player.lane * (canvas.width * 0.35) * 0.8;
-                let pY = (canvas.height * 0.9) - player.y;
-                let pH = player.isRolling ? 20 : 50;
-
-                // Character Shadow
-                ctx.fillStyle = "rgba(0,0,0,0.3)";
-                ctx.beginPath(); ctx.ellipse(pX, canvas.height * 0.91, 15, 5, 0, 0, Math.PI*2); ctx.fill();
-
-                // Body (Blue Hoodie)
-                ctx.fillStyle = "#2980b9";
-                ctx.fillRect(pX - 15, pY - pH, 30, pH);
-                // Head & Red Cap
-                ctx.fillStyle = "#ff7675"; ctx.fillRect(pX - 10, pY - pH - 15, 20, 15);
-                ctx.fillStyle = "#d63031"; ctx.fillRect(pX - 12, pY - pH - 15, 25, 5);
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                world.draw();
+                player.draw();
             },
 
             loop() {
                 if(!this.running) return;
-                this.update();
-                this.draw();
+                this.update(); this.draw();
                 requestAnimationFrame(() => this.loop());
             }
         };
 
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
+        const player = {
+            x: 100, y: 0, w: 35, h: 55, vY: 0, 
+            isJumping: false, isRolling: false, rollCounter: 0,
+            
+            init() { this.y = canvas.height - 100; this.vY = 0; },
 
+            update() {
+                this.vY += 0.9; // Gravity
+                this.y += this.vY;
+                const ground = canvas.height - (this.isRolling ? 65 : 95);
+                if(this.y > ground) { this.y = ground; this.vY = 0; this.isJumping = false; }
+                if(this.isRolling) { this.rollCounter--; if(this.rollCounter <= 0) this.isRolling = false; }
+            },
+
+            jump() { if(!this.isJumping) { this.vY = -17; this.isJumping = true; } },
+            roll() { if(!this.isJumping) { this.isRolling = true; this.rollCounter = 45; } },
+
+            draw() {
+                const drawH = this.isRolling ? 30 : 55;
+                ctx.fillStyle = "#3498db"; ctx.fillRect(this.x, this.y, 35, drawH); // Body
+                ctx.fillStyle = "red"; ctx.fillRect(this.x + 5, this.y - 12, 25, 12); // Head
+            }
+        };
+
+        const world = {
+            speed: 6,
+            items: [],
+            
+            init() { this.items = []; },
+
+            update() {
+                // Difficulty Scaling based on level
+                const spawnRate = 0.02 + (core.level * 0.0005);
+                if(Math.random() < spawnRate) {
+                    const type = Math.random() > 0.5 ? 'low' : 'high';
+                    this.items.push({
+                        x: canvas.width + 50,
+                        y: type === 'low' ? canvas.height - 95 : canvas.height - 160,
+                        w: 30, h: type === 'low' ? 60 : 30,
+                        type: type
+                    });
+                }
+
+                for(let i=this.items.length-1; i>=0; i--) {
+                    let it = this.items[i];
+                    it.x -= this.speed;
+
+                    // Improved Mario Collision
+                    if(it.x < player.x + 35 && it.x + it.w > player.x &&
+                       it.y < player.y + (player.isRolling ? 30 : 55) && it.y + it.h > player.y) {
+                        core.running = false;
+                        document.getElementById('death-screen').style.display = 'flex';
+                        document.getElementById('death-info').innerText = "FAILED AT LEVEL " + core.level;
+                    }
+                    if(it.x < -50) this.items.splice(i, 1);
+                }
+            },
+
+            draw() {
+                ctx.fillStyle = "#222"; ctx.fillRect(0, canvas.height-40, canvas.width, 40); // Ground
+                this.items.forEach(it => {
+                    ctx.fillStyle = it.type === 'low' ? "#e74c3c" : "#f1c40f";
+                    ctx.fillRect(it.x, it.y, it.w, it.h);
+                });
+            }
+        };
+
+        document.getElementById('jump-zone').addEventListener('pointerdown', () => player.jump());
+        document.getElementById('roll-zone').addEventListener('pointerdown', () => player.roll());
     </script>
 </body>
 </html>
