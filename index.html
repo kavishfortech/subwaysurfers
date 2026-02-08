@@ -2,744 +2,341 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- ========================================================= -->
-<!-- =================== META & VIEWPORT ==================== -->
-<!-- ========================================================= -->
-
-<meta name="viewport"
-      content="width=device-width,
-               initial-scale=1.0,
-               maximum-scale=1.0,
-               user-scalable=no">
-
-<title>SUBWAY ARCHITECT — Endless Runner</title>
-
-<!-- ========================================================= -->
-<!-- ====================== FONTS ============================ -->
-<!-- ========================================================= -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SUBWAY ARCHITECT</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Share+Tech+Mono&display=swap');
-</style>
-
-<!-- ========================================================= -->
-<!-- ====================== STYLES =========================== -->
-<!-- ========================================================= -->
-
-<style>
-
-/* ========================================================= */
-/* ====================== ROOT ============================== */
-/* ========================================================= */
 
 :root {
-
-    --neon-blue: #00f3ff;
-    --neon-pink: #bc13fe;
-    --neon-gold: #ffd700;
-    --danger: #ff2e2e;
-    --bg-dark: #050510;
-    --panel-dark: rgba(0,0,0,0.7);
-
+    --neon-blue:#00f3ff;
+    --neon-pink:#bc13fe;
+    --neon-gold:#ffd700;
+    --danger:#ff2e2e;
+    --bg-dark:#050510;
 }
 
-/* ========================================================= */
-/* ====================== RESET ============================= */
-/* ========================================================= */
-
-* {
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* ========================================================= */
-/* ====================== BODY ============================== */
-/* ========================================================= */
+* { box-sizing:border-box; user-select:none; touch-action: none; }
 
 body {
-
-    margin: 0;
-    padding: 0;
-
-    width: 100vw;
-    height: 100vh;
-
-    background: var(--bg-dark);
-    color: white;
-
-    font-family: 'Share Tech Mono', monospace;
-
-    overflow: hidden;
-
-}
-
-/* ========================================================= */
-/* ====================== CANVAS ============================ */
-/* ========================================================= */
-
-canvas {
-
-    display: block;
-    width: 100%;
-    height: 100%;
-
-}
-
-/* ========================================================= */
-/* ====================== UI LAYER ========================== */
-/* ========================================================= */
-
-#ui-layer {
-
-    position: absolute;
-    inset: 0;
-
-    z-index: 10;
-    pointer-events: none;
-
-}
-
-/* ========================================================= */
-/* ====================== HUD =============================== */
-/* ========================================================= */
-
-.hud-top {
-
-    position: absolute;
-    top: 0;
-    width: 100%;
-
-    display: flex;
-    justify-content: space-between;
-
-    padding: 15px;
-
-}
-
-.hud-box {
-
-    background: var(--panel-dark);
-
-    padding: 10px 20px;
-
-    border-radius: 6px;
-    border: 1px solid #333;
-
-    text-align: center;
-
-}
-
-.hud-label {
-
-    font-size: 0.6rem;
-    color: #888;
-
-}
-
-.hud-val {
-
-    font-family: 'Syncopate';
-    font-size: 1.2rem;
-
-}
-
-/* ========================================================= */
-/* ====================== BUTTONS =========================== */
-/* ========================================================= */
-
-.btn {
-
-    padding: 14px 36px;
-    margin: 10px;
-
-    background: transparent;
-    border: 2px solid var(--neon-blue);
-
-    color: var(--neon-blue);
-    font-family: 'Syncopate';
-
-    cursor: pointer;
-
-}
-
-.btn-gold {
-
-    border-color: var(--neon-gold);
-    color: var(--neon-gold);
-
-}
-
-.btn-danger {
-
-    border-color: var(--danger);
-    color: var(--danger);
-
-}
-
-/* ========================================================= */
-/* ====================== SCREENS =========================== */
-/* ========================================================= */
-
-.screen {
-
-    position: absolute;
-    inset: 0;
-
-    background: rgba(5,5,10,0.92);
-
+    margin:0;
+    background:var(--bg-dark);
+    font-family:'Share Tech Mono', monospace;
+    overflow:hidden;
+    color:white;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    z-index: 20;
-
+    height: 100vh;
 }
 
-.hidden {
-
-    display: none;
-
+/* --- RGB TRADEMARK BOX --- */
+#trademark-box {
+    width: 95vw;
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+    font-family: 'Syncopate';
+    font-size: 1rem;
+    letter-spacing: 3px;
+    border: 2px solid #fff;
+    /* RGB Animation */
+    animation: rgbShift 3s linear infinite;
+    background: rgba(0,0,0,0.5);
+    text-transform: uppercase;
 }
 
-/* ========================================================= */
-/* ====================== TITLES ============================ */
-/* ========================================================= */
+@keyframes rgbShift {
+    0% { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+    33% { border-color: #00ff00; color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+    66% { border-color: #0000ff; color: #0000ff; box-shadow: 0 0 10px #0000ff; }
+    100% { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+}
+
+/* --- THE "SLIGHTLY SMALL" GAME BOX --- */
+#game-container {
+    position: relative;
+    width: 95vw;
+    height: 85vh; /* Occupies most of the phone screen */
+    border: 2px solid #333;
+    background: #000;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+canvas { width: 100%; height: 100%; display:block; }
+
+#ui-layer {
+    position:absolute; inset:0; pointer-events:none; z-index:10;
+}
+
+.hud-top {
+    position:absolute; top:0; width:100%;
+    display:flex; justify-content:space-between;
+    padding:15px;
+}
+
+.hud-box {
+    background:rgba(0,0,0,0.7);
+    padding:10px 20px;
+    border-radius:6px;
+    border:1px solid #333;
+    text-align:center;
+}
+
+.hud-label { font-size:0.6rem; color:#888; }
+.hud-val { font-family:'Syncopate'; font-size:1.2rem; }
+
+.screen {
+    position:absolute; inset:0;
+    background:rgba(5,5,10,0.92);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
+}
+
+.hidden { display:none; }
 
 h1 {
-
-    font-family: 'Syncopate';
-    text-align: center;
-
-    background: linear-gradient(
-        45deg,
-        var(--neon-blue),
-        var(--neon-pink)
-    );
-
-    -webkit-background-clip: text;
-    color: transparent;
-
+    font-family:'Syncopate';
+    background:linear-gradient(45deg,var(--neon-blue),var(--neon-pink));
+    -webkit-background-clip:text;
+    color:transparent;
+    text-align:center;
 }
 
-/* ========================================================= */
-/* ====================== PAUSE BUTTON ====================== */
-/* ========================================================= */
+.btn {
+    padding:14px 36px;
+    margin:8px;
+    background:none;
+    border:2px solid var(--neon-blue);
+    color:var(--neon-blue);
+    font-family:'Syncopate';
+    cursor:pointer;
+    pointer-events: auto;
+}
+
+.btn-danger { border-color:var(--danger); color:var(--danger); }
+.btn-gold { border-color:var(--neon-gold); color:var(--neon-gold); }
 
 #pauseBtn {
-
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-
-    pointer-events: auto;
-
+    position:absolute;
+    bottom:20px;
+    right:20px;
+    pointer-events:auto;
 }
-
-/* ========================================================= */
-/* ====================== TOUCH ZONES ======================= */
-/* ========================================================= */
 
 .touch-zones {
-
-    position: absolute;
-    bottom: 0;
-
-    width: 100%;
-    height: 50vh;
-
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-
-    z-index: 5;
-
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    z-index:5;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- ========================================================= -->
-<!-- ====================== CANVAS =========================== -->
-<!-- ========================================================= -->
+<div id="trademark-box">KAVISHFORTECH ARCHITECT</div>
 
-<canvas id="gameCanvas"></canvas>
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
 
-<!-- ========================================================= -->
-<!-- ====================== UI =============================== -->
-<!-- ========================================================= -->
-
-<div id="ui-layer">
-
-    <div class="hud-top">
-
-        <div class="hud-box" style="border-bottom:3px solid var(--neon-blue)">
-            <div class="hud-label">DISTANCE</div>
-            <div class="hud-val" id="scoreDisplay">0</div>
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div class="hud-box" style="border-bottom:3px solid var(--neon-blue)">
+                <div class="hud-label">DISTANCE</div>
+                <div class="hud-val" id="scoreDisplay">0</div>
+            </div>
+            <div class="hud-box" style="border-bottom:3px solid var(--neon-gold)">
+                <div class="hud-label">BANK</div>
+                <div class="hud-val" id="coinDisplay" style="color:var(--neon-gold)">0</div>
+            </div>
         </div>
-
-        <div class="hud-box" style="border-bottom:3px solid var(--neon-gold)">
-            <div class="hud-label">BANK</div>
-            <div class="hud-val" id="coinDisplay" style="color:var(--neon-gold)">0</div>
-        </div>
-
+        <button id="pauseBtn" class="btn btn-gold hidden" onclick="Game.togglePause()">STOP</button>
     </div>
 
-    <button id="pauseBtn"
-            class="btn btn-gold hidden"
-            onclick="Game.togglePause()">STOP</button>
+    <div id="menuScreen" class="screen">
+        <h1>SUBWAY<br>ARCHITECT</h1>
+        <p id="deviceInfo" style="color:#777"></p>
+        <button class="btn" onclick="Game.start()">START</button>
+    </div>
 
+    <div id="deathScreen" class="screen hidden">
+        <h1 style="color:var(--danger)">GAME OVER</h1>
+        <p>DISTANCE: <span id="finalScore">0</span></p>
+        <button class="btn" onclick="Game.start()">RESTART</button>
+        <button class="btn btn-danger" onclick="Game.quit()">QUIT</button>
+    </div>
+
+    <div class="touch-zones hidden" id="touchZones">
+        <div></div>
+        <div></div>
+    </div>
 </div>
-
-<!-- ========================================================= -->
-<!-- ====================== MENU ============================= -->
-<!-- ========================================================= -->
-
-<div id="menuScreen" class="screen">
-
-    <h1>SUBWAY<br>ARCHITECT</h1>
-
-    <p id="deviceInfo" style="color:#777"></p>
-
-    <button class="btn" onclick="Game.start()">START</button>
-
-</div>
-
-<!-- ========================================================= -->
-<!-- ====================== GAME OVER ======================== -->
-<!-- ========================================================= -->
-
-<div id="deathScreen" class="screen hidden">
-
-    <h1 style="color:var(--danger)">GAME OVER</h1>
-
-    <p>DISTANCE:
-        <span id="finalScore">0</span>
-    </p>
-
-    <button class="btn" onclick="Game.start()">RESTART</button>
-    <button class="btn btn-danger" onclick="Game.quit()">QUIT</button>
-
-</div>
-
-<!-- ========================================================= -->
-<!-- ====================== TOUCH ============================ -->
-<!-- ========================================================= -->
-
-<div class="touch-zones hidden" id="touchZones">
-    <div></div>
-    <div></div>
-</div>
-
-<!-- ========================================================= -->
-<!-- ====================== SCRIPT =========================== -->
-<!-- ========================================================= -->
 
 <script>
-
-/* ========================================================= */
-/* ====================== DEVICE ============================ */
-/* ========================================================= */
-
-const isDesktop =
-    !(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
-
-document.getElementById("deviceInfo").innerText =
-    isDesktop
-        ? "DESKTOP DETECTED — KEYBOARD ENABLED"
-        : "MOBILE DETECTED — TOUCH ENABLED";
-
-/* ========================================================= */
-/* ====================== CANVAS ============================ */
-/* ========================================================= */
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const container = document.getElementById("game-container");
 
-/* ========================================================= */
-/* ====================== CONFIG ============================ */
-/* ========================================================= */
+const isDesktop = !(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+document.getElementById("deviceInfo").innerText =
+    isDesktop ? "DESKTOP DETECTED — KEYBOARD ENABLED" : "MOBILE DETECTED — TOUCH ENABLED";
 
-const CFG = {
-
-    GRAVITY: 0.6,
-    JUMP_FORCE: -13,
-    SPEED: 7,
-
-    GROUND_Y: 0
-
-};
-
-/* ========================================================= */
-/* ====================== GAME CORE ========================= */
-/* ========================================================= */
+const CFG = { GRAVITY:0.6, JUMP:-13, SPEED:7, GROUND:0 };
 
 const Game = {
-
-    active: false,
-    paused: false,
-
-    score: 0,
-    coins: 0,
-
+    active:false,
+    paused:false,
+    score:0,
+    coins:0,
     start() {
-
-        this.active = true;
-        this.paused = false;
-
-        this.score = 0;
-        this.coins = 0;
-
+        this.active=true;
+        this.paused=false;
+        this.score=0;
+        this.coins=0;
         World.reset();
         Player.reset();
-
         hideAllScreens();
-
         pauseBtn.classList.remove("hidden");
-
         loop();
-
     },
-
     over() {
-
-        this.active = false;
-
+        this.active=false;
         pauseBtn.classList.add("hidden");
-
-        finalScore.innerText =
-            Math.floor(this.score);
-
+        finalScore.innerText=Math.floor(this.score);
         deathScreen.classList.remove("hidden");
-
     },
-
     quit() {
-
-        this.active = false;
-
+        this.active=false;
         pauseBtn.classList.add("hidden");
-
         menuScreen.classList.remove("hidden");
-
     },
-
     togglePause() {
-
-        this.paused = !this.paused;
-
-        pauseBtn.innerText =
-            this.paused ? "RESUME" : "STOP";
-
-        if (!this.paused) loop();
-
+        this.paused=!this.paused;
+        pauseBtn.innerText=this.paused?"RESUME":"STOP";
+        if(!this.paused) loop();
     }
-
 };
-
-/* ========================================================= */
-/* ====================== PLAYER ============================ */
-/* ========================================================= */
 
 const Player = {
-
-    x: 100,
-    y: 0,
-
-    width: 40,
-    height: 60,
-
-    velocityY: 0,
-
-    state: "RUN",
-    rollTimer: 0,
-
-    reset() {
-
-        this.y = CFG.GROUND_Y;
-        this.velocityY = 0;
-        this.state = "RUN";
-
+    x:100,y:0,vy:0,state:"RUN",timer:0,
+    reset(){this.y=CFG.GROUND;this.vy=0;this.state="RUN";},
+    update(){
+        this.vy+=CFG.GRAVITY;
+        this.y+=this.vy;
+        if(this.y>CFG.GROUND){this.y=CFG.GROUND;this.vy=0;}
+        if(this.state==="ROLL"){this.timer--;if(this.timer<=0)this.state="RUN";}
     },
+    draw(){
+        const r=this.state==="ROLL";
+        const y=r?this.y+30:this.y;
 
-    update() {
-
-        this.velocityY += CFG.GRAVITY;
-        this.y += this.velocityY;
-
-        if (this.y > CFG.GROUND_Y) {
-            this.y = CFG.GROUND_Y;
-            this.velocityY = 0;
-        }
-
-        if (this.state === "ROLL") {
-            this.rollTimer--;
-            if (this.rollTimer <= 0)
-                this.state = "RUN";
-        }
-
-    },
-
-    draw() {
-
-        const rolling = this.state === "ROLL";
-        const drawY = rolling ? this.y + 30 : this.y;
-
-        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.fillStyle="rgba(0,0,0,.3)";
         ctx.beginPath();
-        ctx.ellipse(
-            this.x + 20,
-            CFG.GROUND_Y + 65,
-            22,
-            6,
-            0,
-            0,
-            Math.PI * 2
-        );
+        ctx.ellipse(this.x+20,CFG.GROUND+65,22,6,0,0,Math.PI*2);
         ctx.fill();
 
-        ctx.fillStyle = "#3498db";
+        ctx.fillStyle="#3498db";
         ctx.beginPath();
-        ctx.roundRect(
-            this.x,
-            drawY + 15,
-            40,
-            35,
-            8
-        );
+        ctx.roundRect(this.x,y+15,40,35,8);
         ctx.fill();
 
-        if (!rolling) {
-            ctx.fillStyle = "#f1c27d";
+        if(!r){
+            ctx.fillStyle="#f1c27d";
             ctx.beginPath();
-            ctx.arc(
-                this.x + 20,
-                drawY + 5,
-                10,
-                0,
-                Math.PI * 2
-            );
+            ctx.arc(this.x+20,y+5,10,0,Math.PI*2);
             ctx.fill();
         }
-
     }
-
 };
-
-/* ========================================================= */
-/* ====================== WORLD ============================= */
-/* ========================================================= */
 
 const World = {
+    obs:[], coins:[],
+    reset(){this.obs=[];this.coins=[];},
+    update(){
+        Game.score+=CFG.SPEED*0.1;
+        if(Math.random()<0.02) this.obs.push({x:canvas.width,y:CFG.GROUND,w:40,h:60});
+        if(Math.random()<0.03) this.coins.push({x:canvas.width,y:CFG.GROUND-40,w:25,h:25});
 
-    obstacles: [],
-    coins: [],
+        this.obs.forEach(o=>o.x-=CFG.SPEED);
+        this.coins.forEach(c=>c.x-=CFG.SPEED);
 
-    reset() {
-
-        this.obstacles = [];
-        this.coins = [];
-
-    },
-
-    spawn() {
-
-        if (Math.random() < 0.02) {
-            this.obstacles.push({
-                x: canvas.width,
-                y: CFG.GROUND_Y,
-                w: 40,
-                h: 60
-            });
-        }
-
-        if (Math.random() < 0.03) {
-            this.coins.push({
-                x: canvas.width,
-                y: CFG.GROUND_Y - 40,
-                w: 25,
-                h: 25
-            });
-        }
-
-    },
-
-    update() {
-
-        Game.score += CFG.SPEED * 0.1;
-
-        this.spawn();
-
-        this.obstacles.forEach(o => o.x -= CFG.SPEED);
-        this.coins.forEach(c => c.x -= CFG.SPEED);
-
-        this.obstacles = this.obstacles.filter(o => {
-            if (checkCollision(Player, o)) {
-                Game.over();
-            }
-            return o.x > -100;
+        this.obs = this.obs.filter(o=>{
+            if(hit(Player,o)) Game.over();
+            return o.x>-100;
         });
 
-        this.coins = this.coins.filter(c => {
-            if (checkCollision(Player, c)) {
-                Game.coins += 10;
-                return false;
-            }
-            return c.x > -100;
+        this.coins=this.coins.filter(c=>{
+            if(hit(Player,c)){Game.coins+=10;return false;}
+            return c.x>-100;
         });
-
     },
+    draw(){
+        ctx.fillStyle="#222";
+        ctx.fillRect(0,CFG.GROUND+60,canvas.width,canvas.height);
 
-    draw() {
+        ctx.fillStyle="#c0392b";
+        this.obs.forEach(o=>ctx.fillRect(o.x,o.y,o.w,o.h));
 
-        ctx.fillStyle = "#222";
-        ctx.fillRect(
-            0,
-            CFG.GROUND_Y + 60,
-            canvas.width,
-            canvas.height
-        );
-
-        ctx.fillStyle = "#c0392b";
-        this.obstacles.forEach(o => {
-            ctx.fillRect(o.x, o.y, o.w, o.h);
-        });
-
-        ctx.fillStyle = "#f1c40f";
-        this.coins.forEach(c => {
+        this.coins.forEach(c=>{
+            ctx.fillStyle="#f1c40f";
             ctx.beginPath();
-            ctx.arc(
-                c.x + 12,
-                c.y + 12,
-                12,
-                0,
-                Math.PI * 2
-            );
+            ctx.arc(c.x+12,c.y+12,12,0,Math.PI*2);
             ctx.fill();
         });
-
     }
-
 };
 
-/* ========================================================= */
-/* ====================== COLLISION ========================= */
-/* ========================================================= */
-
-function checkCollision(p, o) {
-
-    const py =
-        p.state === "ROLL"
-            ? p.y + 30
-            : p.y;
-
-    const ph =
-        p.state === "ROLL"
-            ? 30
-            : 60;
-
-    return (
-        p.x < o.x + o.w &&
-        p.x + p.width > o.x &&
-        py < o.y + o.h &&
-        py + ph > o.y
-    );
-
+function hit(p,o){
+    let py=p.state==="ROLL"?p.y+30:p.y;
+    let ph=p.state==="ROLL"?30:60;
+    return p.x<o.x+o.w && p.x+40>o.x && py<o.y+o.h && py+ph>o.y;
 }
 
-/* ========================================================= */
-/* ====================== LOOP ============================== */
-/* ========================================================= */
-
-function loop() {
-
-    if (!Game.active || Game.paused) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+function loop(){
+    if(!Game.active || Game.paused) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     Player.update();
     World.update();
-
     World.draw();
     Player.draw();
-
-    scoreDisplay.innerText =
-        Math.floor(Game.score);
-
-    coinDisplay.innerText =
-        Game.coins;
-
+    scoreDisplay.innerText=Math.floor(Game.score);
+    coinDisplay.innerText=Game.coins;
     requestAnimationFrame(loop);
-
 }
 
-/* ========================================================= */
-/* ====================== INPUT ============================= */
-/* ========================================================= */
-
-if (isDesktop) {
-
-    window.addEventListener("keydown", e => {
-
-        if (!Game.active) return;
-
-        if (
-            e.code === "Space" ||
-            e.code === "ArrowUp"
-        ) {
-            Player.velocityY = CFG.JUMP_FORCE;
-        }
-
-        if (e.code === "ArrowDown") {
-            Player.state = "ROLL";
-            Player.rollTimer = 30;
-        }
-
-    });
-
-} else {
-
-    touchZones.classList.remove("hidden");
-
-    touchZones.children[0].ontouchstart =
-        () => Player.velocityY = CFG.JUMP_FORCE;
-
-    touchZones.children[1].ontouchstart =
-        () => {
-            Player.state = "ROLL";
-            Player.rollTimer = 30;
-        };
-
-}
-
-/* ========================================================= */
-/* ====================== UTILS ============================= */
-/* ========================================================= */
-
-function hideAllScreens() {
-
+function hideAllScreens(){
     menuScreen.classList.add("hidden");
     deathScreen.classList.add("hidden");
-
 }
 
-/* ========================================================= */
-/* ====================== INIT ============================== */
-/* ========================================================= */
+if(isDesktop){
+    window.addEventListener("keydown",e=>{
+        if(!Game.active) return;
+        if(e.code==="Space"||e.code==="ArrowUp") Player.vy=CFG.JUMP;
+        if(e.code==="ArrowDown"){Player.state="ROLL";Player.timer=30;}
+    });
+} else {
+    touchZones.classList.remove("hidden");
+    // Enhanced touch for mobile
+    touchZones.children[0].addEventListener("touchstart", (e) => { e.preventDefault(); Player.vy=CFG.JUMP; });
+    touchZones.children[1].addEventListener("touchstart", (e) => { e.preventDefault(); Player.state="ROLL"; Player.timer=30; });
+}
 
-window.onload = () => {
-
-    canvas.width = innerWidth;
-    canvas.height = innerHeight;
-
-    CFG.GROUND_Y = canvas.height - 150;
-
+window.onload=()=>{
+    // Map canvas to container size
+    canvas.width=container.clientWidth;
+    canvas.height=container.clientHeight;
+    CFG.GROUND=canvas.height-150;
 };
-
 </script>
 
 </body>
