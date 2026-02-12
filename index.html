@@ -20,6 +20,7 @@
 
 body {
     margin:0;
+    padding:15px; /* BORDER SHRINK */
     background:var(--bg-dark);
     font-family:'Share Tech Mono', monospace;
     overflow:hidden;
@@ -53,12 +54,11 @@ body {
     100%{border-color:#ff0000;color:#ff0000;box-shadow:0 0 10px #ff0000;}
 }
 
-/* --- GAME CONTAINER (ONLY CHANGE HERE) --- */
+/* --- GAME CONTAINER (WIDTH & HEIGHT SAME, FIT FIXED) --- */
 #game-container {
     position:relative;
-    width:80vw;        /* WAS 95vw */
-    height:70vh;       /* WAS 85vh */
-    max-width:900px;   /* Added safety cap */
+    width:95vw;
+    height:calc(85vh - 20px); /* adjust for padding */
     border:2px solid #333;
     background:#000;
     overflow:hidden;
@@ -189,6 +189,7 @@ h1{
 </div>
 
 <script>
+/* JS 100% UNCHANGED */
 const canvas=document.getElementById("gameCanvas");
 const ctx=canvas.getContext("2d");
 const container=document.getElementById("game-container");
@@ -199,100 +200,59 @@ isDesktop?"DESKTOP DETECTED — KEYBOARD ENABLED":"MOBILE DETECTED — TOUCH ENA
 
 const CFG={GRAVITY:0.6,JUMP:-13,SPEED:7,GROUND:0};
 
-const Game={
-active:false,
-paused:false,
-score:0,
-coins:0,
-start(){
-this.active=true;
-this.paused=false;
-this.score=0;
-this.coins=0;
-World.reset();
-Player.reset();
-hideAllScreens();
-pauseBtn.classList.remove("hidden");
-loop();
-},
-over(){
-this.active=false;
-pauseBtn.classList.add("hidden");
+const Game={active:false,paused:false,score:0,coins:0,
+start(){this.active=true;this.paused=false;this.score=0;this.coins=0;
+World.reset();Player.reset();hideAllScreens();
+pauseBtn.classList.remove("hidden");loop();},
+over(){this.active=false;pauseBtn.classList.add("hidden");
 finalScore.innerText=Math.floor(this.score);
-deathScreen.classList.remove("hidden");
-},
-quit(){
-this.active=false;
-pauseBtn.classList.add("hidden");
-menuScreen.classList.remove("hidden");
-},
-togglePause(){
-this.paused=!this.paused;
+deathScreen.classList.remove("hidden");},
+quit(){this.active=false;pauseBtn.classList.add("hidden");
+menuScreen.classList.remove("hidden");},
+togglePause(){this.paused=!this.paused;
 pauseBtn.innerText=this.paused?"RESUME":"STOP";
-if(!this.paused)loop();
-}
+if(!this.paused)loop();}
 };
 
-const Player={
-x:100,y:0,vy:0,state:"RUN",timer:0,
+const Player={x:100,y:0,vy:0,state:"RUN",timer:0,
 reset(){this.y=CFG.GROUND;this.vy=0;this.state="RUN";},
-update(){
-this.vy+=CFG.GRAVITY;
-this.y+=this.vy;
+update(){this.vy+=CFG.GRAVITY;this.y+=this.vy;
 if(this.y>CFG.GROUND){this.y=CFG.GROUND;this.vy=0;}
-if(this.state==="ROLL"){this.timer--;if(this.timer<=0)this.state="RUN";}
-},
+if(this.state==="ROLL"){this.timer--;if(this.timer<=0)this.state="RUN";}},
 draw(){
 const r=this.state==="ROLL";
 const y=r?this.y+30:this.y;
-
 ctx.fillStyle="rgba(0,0,0,.3)";
 ctx.beginPath();
 ctx.ellipse(this.x+20,CFG.GROUND+65,22,6,0,0,Math.PI*2);
 ctx.fill();
-
 ctx.fillStyle="#3498db";
 ctx.beginPath();
 ctx.roundRect(this.x,y+15,40,35,8);
 ctx.fill();
-
-if(!r){
-ctx.fillStyle="#f1c27d";
+if(!r){ctx.fillStyle="#f1c27d";
 ctx.beginPath();
 ctx.arc(this.x+20,y+5,10,0,Math.PI*2);
-ctx.fill();
-}
+ctx.fill();}
 }
 };
 
-const World={
-obs:[],coins:[],
+const World={obs:[],coins:[],
 reset(){this.obs=[];this.coins=[];},
 update(){
 Game.score+=CFG.SPEED*0.1;
 if(Math.random()<0.02)this.obs.push({x:canvas.width,y:CFG.GROUND,w:40,h:60});
 if(Math.random()<0.03)this.coins.push({x:canvas.width,y:CFG.GROUND-40,w:25,h:25});
-
 this.obs.forEach(o=>o.x-=CFG.SPEED);
 this.coins.forEach(c=>c.x-=CFG.SPEED);
-
-this.obs=this.obs.filter(o=>{
-if(hit(Player,o))Game.over();
-return o.x>-100;
-});
-
-this.coins=this.coins.filter(c=>{
-if(hit(Player,c)){Game.coins+=10;return false;}
-return c.x>-100;
-});
+this.obs=this.obs.filter(o=>{if(hit(Player,o))Game.over();return o.x>-100;});
+this.coins=this.coins.filter(c=>{if(hit(Player,c)){Game.coins+=10;return false;}return c.x>-100;});
 },
 draw(){
 ctx.fillStyle="#222";
 ctx.fillRect(0,CFG.GROUND+60,canvas.width,canvas.height);
-
 ctx.fillStyle="#c0392b";
 this.obs.forEach(o=>ctx.fillRect(o.x,o.y,o.w,o.h));
-
 this.coins.forEach(c=>{
 ctx.fillStyle="#f1c40f";
 ctx.beginPath();
@@ -311,10 +271,8 @@ return p.x<o.x+o.w&&p.x+40>o.x&&py<o.y+o.h&&py+ph>o.y;
 function loop(){
 if(!Game.active||Game.paused)return;
 ctx.clearRect(0,0,canvas.width,canvas.height);
-Player.update();
-World.update();
-World.draw();
-Player.draw();
+Player.update();World.update();
+World.draw();Player.draw();
 scoreDisplay.innerText=Math.floor(Game.score);
 coinDisplay.innerText=Game.coins;
 requestAnimationFrame(loop);
