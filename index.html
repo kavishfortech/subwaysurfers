@@ -8,125 +8,142 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Share+Tech+Mono&display=swap');
 
-:root{
---neon-blue:#00f3ff;
---neon-pink:#bc13fe;
---neon-gold:#ffd700;
---danger:#ff2e2e;
---bg-dark:#050510;
+:root {
+    --neon-blue:#00f3ff;
+    --neon-pink:#bc13fe;
+    --neon-gold:#ffd700;
+    --danger:#ff2e2e;
+    --bg-dark:#050510;
 }
 
-*{box-sizing:border-box;user-select:none;touch-action:none;}
+* { box-sizing:border-box; user-select:none; touch-action:none; }
 
-body{
-margin:0;
-padding:15px;
-background:var(--bg-dark);
-font-family:'Share Tech Mono',monospace;
-overflow:hidden;
-color:white;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-height:100vh;
+body {
+    margin:0;
+    background:var(--bg-dark);
+    font-family:'Share Tech Mono', monospace;
+    overflow:hidden;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
 }
 
-#trademark-box{
-width:95vw;
-padding:10px;
-margin-bottom:5px;
-text-align:center;
-font-family:'Syncopate';
-font-size:1rem;
-letter-spacing:3px;
-border:2px solid #fff;
-animation:rgbShift 3s linear infinite;
-background:rgba(0,0,0,0.5);
-text-transform:uppercase;
+/* --- RGB TRADEMARK BOX --- */
+#trademark-box {
+    width:95vw;
+    padding:10px;
+    margin-bottom:5px;
+    text-align:center;
+    font-family:'Syncopate';
+    font-size:1rem;
+    letter-spacing:3px;
+    border:2px solid #fff;
+    animation:rgbShift 3s linear infinite;
+    background:rgba(0,0,0,0.5);
+    text-transform:uppercase;
 }
 
-@keyframes rgbShift{
-0%{border-color:#ff0000;color:#ff0000;box-shadow:0 0 10px #ff0000;}
-33%{border-color:#00ff00;color:#00ff00;box-shadow:0 0 10px #00ff00;}
-66%{border-color:#0000ff;color:#0000ff;box-shadow:0 0 10px #0000ff;}
-100%{border-color:#ff0000;color:#ff0000;box-shadow:0 0 10px #ff0000;}
+@keyframes rgbShift {
+    0%{border-color:#ff0000;color:#ff0000;box-shadow:0 0 10px #ff0000;}
+    33%{border-color:#00ff00;color:#00ff00;box-shadow:0 0 10px #00ff00;}
+    66%{border-color:#0000ff;color:#0000ff;box-shadow:0 0 10px #0000ff;}
+    100%{border-color:#ff0000;color:#ff0000;box-shadow:0 0 10px #ff0000;}
 }
 
-#game-container{
-position:relative;
-width:95vw;
-height:calc(85vh - 20px);
-border:2px solid #333;
-background:#000;
-overflow:hidden;
-border-radius:4px;
+/* --- GAME CONTAINER (ONLY CHANGE HERE) --- */
+#game-container {
+    position:relative;
+    width:80vw;        /* WAS 95vw */
+    height:70vh;       /* WAS 85vh */
+    max-width:900px;   /* Added safety cap */
+    border:2px solid #333;
+    background:#000;
+    overflow:hidden;
+    border-radius:4px;
 }
 
 canvas{width:100%;height:100%;display:block;}
 
-#ui-layer{position:absolute;inset:0;pointer-events:none;z-index:10;}
+#ui-layer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:10;
+}
 
 .hud-top{
-position:absolute;
-top:0;
-width:100%;
-display:flex;
-justify-content:space-between;
-padding:15px;
+    position:absolute;
+    top:0;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding:15px;
 }
 
 .hud-box{
-background:rgba(0,0,0,0.7);
-padding:10px 20px;
-border-radius:6px;
-border:1px solid #333;
-text-align:center;
+    background:rgba(0,0,0,0.7);
+    padding:10px 20px;
+    border-radius:6px;
+    border:1px solid #333;
+    text-align:center;
 }
 
 .hud-label{font-size:0.6rem;color:#888;}
 .hud-val{font-family:'Syncopate';font-size:1.2rem;}
 
 .screen{
-position:absolute;
-inset:0;
-background:rgba(5,5,10,0.92);
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-z-index:20;
+    position:absolute;
+    inset:0;
+    background:rgba(5,5,10,0.92);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
 }
 
 .hidden{display:none;}
 
 h1{
-font-family:'Syncopate';
-background:linear-gradient(45deg,var(--neon-blue),var(--neon-pink));
--webkit-background-clip:text;
-color:transparent;
-text-align:center;
+    font-family:'Syncopate';
+    background:linear-gradient(45deg,var(--neon-blue),var(--neon-pink));
+    -webkit-background-clip:text;
+    color:transparent;
+    text-align:center;
 }
 
 .btn{
-padding:14px 36px;
-margin:8px;
-background:none;
-border:2px solid var(--neon-blue);
-color:var(--neon-blue);
-font-family:'Syncopate';
-cursor:pointer;
-pointer-events:auto;
+    padding:14px 36px;
+    margin:8px;
+    background:none;
+    border:2px solid var(--neon-blue);
+    color:var(--neon-blue);
+    font-family:'Syncopate';
+    cursor:pointer;
+    pointer-events:auto;
 }
 
 .btn-danger{border-color:var(--danger);color:var(--danger);}
 .btn-gold{border-color:var(--neon-gold);color:var(--neon-gold);}
 
 #pauseBtn{
-position:absolute;
-bottom:20px;
-right:20px;
-pointer-events:auto;
+    position:absolute;
+    bottom:20px;
+    right:20px;
+    pointer-events:auto;
+}
+
+.touch-zones{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    z-index:5;
 }
 </style>
 </head>
@@ -136,40 +153,49 @@ pointer-events:auto;
 <div id="trademark-box">KAVISHFORTECH ARCHITECT</div>
 
 <div id="game-container">
-<canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas"></canvas>
 
-<div id="ui-layer">
-<div class="hud-top">
-<div class="hud-box" style="border-bottom:3px solid var(--neon-blue)">
-<div class="hud-label">DISTANCE</div>
-<div class="hud-val" id="scoreDisplay">0</div>
-</div>
-<div class="hud-box" style="border-bottom:3px solid var(--neon-gold)">
-<div class="hud-label">BANK</div>
-<div class="hud-val" id="coinDisplay" style="color:var(--neon-gold)">0</div>
-</div>
-</div>
-<button id="pauseBtn" class="btn btn-gold hidden" onclick="Game.togglePause()">STOP</button>
-</div>
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div class="hud-box" style="border-bottom:3px solid var(--neon-blue)">
+                <div class="hud-label">DISTANCE</div>
+                <div class="hud-val" id="scoreDisplay">0</div>
+            </div>
+            <div class="hud-box" style="border-bottom:3px solid var(--neon-gold)">
+                <div class="hud-label">BANK</div>
+                <div class="hud-val" id="coinDisplay" style="color:var(--neon-gold)">0</div>
+            </div>
+        </div>
+        <button id="pauseBtn" class="btn btn-gold hidden" onclick="Game.togglePause()">STOP</button>
+    </div>
 
-<div id="menuScreen" class="screen">
-<h1>SUBWAY<br>ARCHITECT</h1>
-<button class="btn" onclick="Game.start()">START</button>
-</div>
+    <div id="menuScreen" class="screen">
+        <h1>SUBWAY<br>ARCHITECT</h1>
+        <p id="deviceInfo" style="color:#777"></p>
+        <button class="btn" onclick="Game.start()">START</button>
+    </div>
 
-<div id="deathScreen" class="screen hidden">
-<h1 style="color:var(--danger)">GAME OVER</h1>
-<p>DISTANCE: <span id="finalScore">0</span></p>
-<button class="btn" onclick="Game.start()">RESTART</button>
-<button class="btn btn-danger" onclick="Game.quit()">QUIT</button>
-</div>
+    <div id="deathScreen" class="screen hidden">
+        <h1 style="color:var(--danger)">GAME OVER</h1>
+        <p>DISTANCE: <span id="finalScore">0</span></p>
+        <button class="btn" onclick="Game.start()">RESTART</button>
+        <button class="btn btn-danger" onclick="Game.quit()">QUIT</button>
+    </div>
 
+    <div class="touch-zones hidden" id="touchZones">
+        <div></div>
+        <div></div>
+    </div>
 </div>
 
 <script>
 const canvas=document.getElementById("gameCanvas");
 const ctx=canvas.getContext("2d");
 const container=document.getElementById("game-container");
+
+const isDesktop=!(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+document.getElementById("deviceInfo").innerText=
+isDesktop?"DESKTOP DETECTED — KEYBOARD ENABLED":"MOBILE DETECTED — TOUCH ENABLED";
 
 const CFG={GRAVITY:0.6,JUMP:-13,SPEED:7,GROUND:0};
 
@@ -185,8 +211,7 @@ this.score=0;
 this.coins=0;
 World.reset();
 Player.reset();
-menuScreen.classList.add("hidden");
-deathScreen.classList.add("hidden");
+hideAllScreens();
 pauseBtn.classList.remove("hidden");
 loop();
 },
@@ -209,41 +234,34 @@ if(!this.paused)loop();
 };
 
 const Player={
-x:100,y:0,vy:0,jumps:0,
-reset(){
-this.y=CFG.GROUND;
-this.vy=0;
-this.jumps=0;
-},
+x:100,y:0,vy:0,state:"RUN",timer:0,
+reset(){this.y=CFG.GROUND;this.vy=0;this.state="RUN";},
 update(){
 this.vy+=CFG.GRAVITY;
 this.y+=this.vy;
-
-if(this.y>CFG.GROUND){
-this.y=CFG.GROUND;
-this.vy=0;
-this.jumps=0;
-}
-},
-jump(){
-if(this.jumps<2){
-this.vy=CFG.JUMP;
-this.jumps++;
-}
+if(this.y>CFG.GROUND){this.y=CFG.GROUND;this.vy=0;}
+if(this.state==="ROLL"){this.timer--;if(this.timer<=0)this.state="RUN";}
 },
 draw(){
+const r=this.state==="ROLL";
+const y=r?this.y+30:this.y;
+
 ctx.fillStyle="rgba(0,0,0,.3)";
 ctx.beginPath();
 ctx.ellipse(this.x+20,CFG.GROUND+65,22,6,0,0,Math.PI*2);
 ctx.fill();
 
 ctx.fillStyle="#3498db";
-ctx.fillRect(this.x,this.y+15,40,35);
+ctx.beginPath();
+ctx.roundRect(this.x,y+15,40,35,8);
+ctx.fill();
 
+if(!r){
 ctx.fillStyle="#f1c27d";
 ctx.beginPath();
-ctx.arc(this.x+20,this.y+5,10,0,Math.PI*2);
+ctx.arc(this.x+20,y+5,10,0,Math.PI*2);
 ctx.fill();
+}
 }
 };
 
@@ -252,12 +270,8 @@ obs:[],coins:[],
 reset(){this.obs=[];this.coins=[];},
 update(){
 Game.score+=CFG.SPEED*0.1;
-
-if(Math.random()<0.02)
-this.obs.push({x:canvas.width,y:CFG.GROUND,w:40,h:60});
-
-if(Math.random()<0.03)
-this.coins.push({x:canvas.width,y:CFG.GROUND-40,w:25,h:25});
+if(Math.random()<0.02)this.obs.push({x:canvas.width,y:CFG.GROUND,w:40,h:60});
+if(Math.random()<0.03)this.coins.push({x:canvas.width,y:CFG.GROUND-40,w:25,h:25});
 
 this.obs.forEach(o=>o.x-=CFG.SPEED);
 this.coins.forEach(c=>c.x-=CFG.SPEED);
@@ -289,10 +303,9 @@ ctx.fill();
 };
 
 function hit(p,o){
-return p.x<o.x+o.w&&
-p.x+40>o.x&&
-p.y<o.y+o.h&&
-p.y+60>o.y;
+let py=p.state==="ROLL"?p.y+30:p.y;
+let ph=p.state==="ROLL"?30:60;
+return p.x<o.x+o.w&&p.x+40>o.x&&py<o.y+o.h&&py+ph>o.y;
 }
 
 function loop(){
@@ -307,10 +320,22 @@ coinDisplay.innerText=Game.coins;
 requestAnimationFrame(loop);
 }
 
+function hideAllScreens(){
+menuScreen.classList.add("hidden");
+deathScreen.classList.add("hidden");
+}
+
+if(isDesktop){
 window.addEventListener("keydown",e=>{
 if(!Game.active)return;
-if(e.code==="Space"||e.code==="ArrowUp")Player.jump();
+if(e.code==="Space"||e.code==="ArrowUp")Player.vy=CFG.JUMP;
+if(e.code==="ArrowDown"){Player.state="ROLL";Player.timer=30;}
 });
+}else{
+touchZones.classList.remove("hidden");
+touchZones.children[0].addEventListener("touchstart",e=>{e.preventDefault();Player.vy=CFG.JUMP;});
+touchZones.children[1].addEventListener("touchstart",e=>{e.preventDefault();Player.state="ROLL";Player.timer=30;});
+}
 
 window.onload=()=>{
 canvas.width=container.clientWidth;
